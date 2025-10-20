@@ -9,16 +9,19 @@ import numpy as np
 data_dir = "chest-xray-pneumonia/versions/2/chest_xray"  # contains train/val/test folders
 
 train_transforms = transforms.Compose([
+    transforms.Grayscale(num_output_channels=3),  # converts grayscale -> 3 channels
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize([0.485], [0.229])  # grayscale normalization
+    transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])
 ])
 
 val_transforms = transforms.Compose([
+    transforms.Grayscale(num_output_channels=3),  # converts grayscale -> 3 channels
     transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize([0.485], [0.229])
+    transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])
 ])
 
 train_data = datasets.ImageFolder(f"{data_dir}/train", transform=train_transforms)
@@ -40,6 +43,7 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.fc.parameters(), lr=1e-3)
 
+print("Beginning training...")
 for epoch in range(5):
     model.train()
     running_loss = 0.0
@@ -53,7 +57,7 @@ for epoch in range(5):
         running_loss += loss.item()
     print(f"Epoch {epoch+1}: Loss {running_loss/len(train_loader):.4f}")
 
-torch.save(model.state_dict(), "pneumonia_resnet18.pth")
+torch.save(model.state_dict(), "pneumonia_resnet18old.pth")
 
 
 
